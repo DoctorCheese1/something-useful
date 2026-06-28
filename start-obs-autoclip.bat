@@ -22,15 +22,12 @@ set "PYTHONPATH=%SCRIPT_DIR%src;%PYTHONPATH%"
 python -c "import obsws_python" >nul 2>nul
 if errorlevel 1 (
   echo Installing required Python package obsws-python...
-  pushd "%SCRIPT_DIR%"
-  python -m pip install -e .
+  python -m pip install obsws-python
   set "INSTALL_EXIT=%ERRORLEVEL%"
-  popd
   if not "%INSTALL_EXIT%"=="0" (
     echo.
     echo Failed to install dependencies. Install them manually with:
-    echo cd /d "%SCRIPT_DIR%"
-    echo python -m pip install -e .
+    echo python -m pip install obsws-python
     pause
     exit /b 1
   )

@@ -45,7 +45,13 @@ The naming template supports `{date}`, `{time}`, `{timestamp}`, and `{scene}`. D
 
 On Windows, double-click `start-obs-autoclip.bat` from the repository folder to start the watcher with the default no-password OBS WebSocket setup. Edit the variables at the top of the batch file if you need a different port, clip folder, clip length, password, or auto-clip interval.
 
-If dependency installation fails on Windows, do not run `pip install -e` with a path that ends in a backslash. Instead, change into the project folder first and install the current directory:
+If dependency installation fails on Windows, install the OBS WebSocket dependency directly:
+
+```bat
+python -m pip install obsws-python
+```
+
+If you want to install this project as an editable package, change into the project folder first and install the current directory:
 
 ```bat
 cd /d "D:\Downloads\something-useful-main (2)\something-useful-main"
