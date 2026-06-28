@@ -19,6 +19,19 @@ if not exist "%OUTPUT_FOLDER%" mkdir "%OUTPUT_FOLDER%"
 
 set "PYTHONPATH=%SCRIPT_DIR%src;%PYTHONPATH%"
 
+python -c "import obsws_python" >nul 2>nul
+if errorlevel 1 (
+  echo Installing required Python package obsws-python...
+  python -m pip install -e "%SCRIPT_DIR%"
+  if errorlevel 1 (
+    echo.
+    echo Failed to install dependencies. Install them manually with:
+    echo python -m pip install -e "%SCRIPT_DIR%"
+    pause
+    exit /b 1
+  )
+)
+
 set "PASSWORD_ARGS="
 if not "%OBS_PASSWORD%"=="" set "PASSWORD_ARGS=--password %OBS_PASSWORD%"
 

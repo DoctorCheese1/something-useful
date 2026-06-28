@@ -8,6 +8,10 @@ class ObsConnectionError(RuntimeError):
     """Raised when OBS WebSocket cannot be reached or authenticated."""
 
 
+class ObsDependencyError(RuntimeError):
+    """Raised when the OBS WebSocket Python dependency is not installed."""
+
+
 class ReplayBufferUnavailableError(RuntimeError):
     """Raised when OBS Replay Buffer is disabled or cannot be controlled."""
 
@@ -41,7 +45,13 @@ class ObsWebSocketClient:
     def connect(self) -> None:
         try:
             from obsws_python import ReqClient
+        except ModuleNotFoundError as exc:  # pragma: no cover - depends on environment
+            raise ObsDependencyError(
+                "Missing dependency: obsws-python. Run `python -m pip install -e .` "
+                "from the project folder, or use start-obs-autoclip.bat to install it automatically."
+            ) from exc
 
+        try:
             self._client = ReqClient(host=self.host, port=self.port, password=self.password or "")
         except Exception as exc:  # pragma: no cover - depends on local OBS
             raise ObsConnectionError(

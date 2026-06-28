@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .config import ClipMode, ObsAutoClipConfig
 from .manager import ObsAutoClipManager
+from .obs_client import ObsConnectionError, ObsDependencyError, ReplayBufferUnavailableError
 
 
 def add_common_arguments(parser: argparse.ArgumentParser, *, suppress_defaults: bool = False) -> None:
@@ -62,17 +63,20 @@ def main(argv: list[str] | None = None) -> int:
     command = args.command or "watch"
     manager = ObsAutoClipManager(config_from_args(args))
 
-    if command == "clip":
-        manager.connect()
-        try:
-            clip_path = manager.save_clip()
-            print(f"Saved clip: {clip_path}" if clip_path else "Saved clip via OBS Replay Buffer")
-        finally:
-            manager.disconnect()
-        return 0
+    try:
+        if command == "clip":
+            manager.connect()
+            try:
+                clip_path = manager.save_clip()
+                print(f"Saved clip: {clip_path}" if clip_path else "Saved clip via OBS Replay Buffer")
+            finally:
+                manager.disconnect()
+            return 0
 
-    manager.run_forever()
-    return 0
+        manager.run_forever()
+        return 0
+    except (ObsDependencyError, ObsConnectionError, ReplayBufferUnavailableError) as exc:
+        parser.exit(1, f"obs-autoclip: {exc}\n")
 
 
 if __name__ == "__main__":
