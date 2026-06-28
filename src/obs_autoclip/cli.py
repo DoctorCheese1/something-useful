@@ -8,23 +8,34 @@ from .config import ClipMode, ObsAutoClipConfig
 from .manager import ObsAutoClipManager
 
 
+def add_common_arguments(parser: argparse.ArgumentParser, *, suppress_defaults: bool = False) -> None:
+    default = argparse.SUPPRESS if suppress_defaults else None
+    parser.add_argument("--host", default=default or os.getenv("OBS_WEBSOCKET_HOST", "localhost"))
+    parser.add_argument("--port", type=int, default=default or int(os.getenv("OBS_WEBSOCKET_PORT", "4455")))
+    parser.add_argument("--password", default=default or os.getenv("OBS_WEBSOCKET_PASSWORD"))
+    parser.add_argument("--clip-length", type=int, choices=(15, 30, 60), default=default or 30)
+    parser.add_argument("--output-folder", type=Path, default=default or Path("clips"))
+    parser.add_argument("--name-format", default=default or "{date}-{time}-{scene}.mp4")
+    parser.add_argument("--enabled-for", choices=[mode.value for mode in ClipMode], default=default or ClipMode.BOTH.value)
+    parser.add_argument("--poll-interval", type=float, default=default or 2.0)
+    parser.add_argument("--no-rename", action="store_true", default=default or False, help="leave OBS-generated replay filenames unchanged")
+    parser.add_argument("--auto-clip-on-scene-change", action="store_true", default=default or False, help="save a replay whenever the active OBS scene changes")
+    parser.add_argument("--auto-clip-interval", type=int, default=default, help="save replays automatically every N seconds while clipping is active")
+    parser.add_argument("--auto-clip-cooldown", type=float, default=default or 10.0, help="minimum seconds between automatic clips")
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="OBS Replay Buffer auto-clipping companion")
-    parser.add_argument("--host", default=os.getenv("OBS_WEBSOCKET_HOST", "localhost"))
-    parser.add_argument("--port", type=int, default=int(os.getenv("OBS_WEBSOCKET_PORT", "4455")))
-    parser.add_argument("--password", default=os.getenv("OBS_WEBSOCKET_PASSWORD"))
-    parser.add_argument("--clip-length", type=int, choices=(15, 30, 60), default=30)
-    parser.add_argument("--output-folder", type=Path, default=Path("clips"))
-    parser.add_argument("--name-format", default="{date}-{time}-{scene}.mp4")
-    parser.add_argument("--enabled-for", choices=[mode.value for mode in ClipMode], default=ClipMode.BOTH.value)
-    parser.add_argument("--poll-interval", type=float, default=2.0)
-    parser.add_argument("--no-rename", action="store_true", help="leave OBS-generated replay filenames unchanged")
-    parser.add_argument("--auto-clip-on-scene-change", action="store_true", help="save a replay whenever the active OBS scene changes")
-    parser.add_argument("--auto-clip-interval", type=int, help="save replays automatically every N seconds while clipping is active")
-    parser.add_argument("--auto-clip-cooldown", type=float, default=10.0, help="minimum seconds between automatic clips")
+    root_common = argparse.ArgumentParser(add_help=False)
+    add_common_arguments(root_common)
+    subcommand_common = argparse.ArgumentParser(add_help=False)
+    add_common_arguments(subcommand_common, suppress_defaults=True)
+    parser = argparse.ArgumentParser(
+        description="OBS Replay Buffer auto-clipping companion",
+        parents=[root_common],
+    )
     subcommands = parser.add_subparsers(dest="command")
-    subcommands.add_parser("watch", help="keep Replay Buffer synced with stream/recording state")
-    subcommands.add_parser("clip", help="save the current Replay Buffer immediately")
+    subcommands.add_parser("watch", help="keep Replay Buffer synced with stream/recording state", parents=[subcommand_common])
+    subcommands.add_parser("clip", help="save the current Replay Buffer immediately", parents=[subcommand_common])
     return parser
 
 

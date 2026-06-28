@@ -22,7 +22,7 @@ set "PYTHONPATH=%SCRIPT_DIR%src;%PYTHONPATH%"
 set "PASSWORD_ARGS="
 if not "%OBS_PASSWORD%"=="" set "PASSWORD_ARGS=--password %OBS_PASSWORD%"
 
-python -m obs_autoclip.cli watch ^
+python -m obs_autoclip.cli ^
   --host "%OBS_HOST%" ^
   --port "%OBS_PORT%" ^
   %PASSWORD_ARGS% ^
@@ -32,7 +32,8 @@ python -m obs_autoclip.cli watch ^
   --enabled-for "%ENABLED_FOR%" ^
   --auto-clip-on-scene-change ^
   --auto-clip-interval "%AUTO_CLIP_INTERVAL%" ^
-  --auto-clip-cooldown "%AUTO_CLIP_COOLDOWN%"
+  --auto-clip-cooldown "%AUTO_CLIP_COOLDOWN%" ^
+  watch
 
 if errorlevel 1 (
   echo.
