@@ -40,6 +40,11 @@ Supported `--enabled-for` values are:
 
 The naming template supports `{date}`, `{time}`, `{timestamp}`, and `{scene}`. Duplicate names automatically receive a numeric suffix. If OBS WebSocket has no password, do not pass `--password`; if you later enable one, pass `--password "your-password"` or set `OBS_WEBSOCKET_PASSWORD`.
 
+
+### Windows `.bat` launcher
+
+On Windows, double-click `start-obs-autoclip.bat` from the repository folder to start the watcher with the default no-password OBS WebSocket setup. Edit the variables at the top of the batch file if you need a different port, clip folder, clip length, password, or auto-clip interval.
+
 ### Triggering clips
 
 Automatic clipping can be enabled with `--auto-clip-on-scene-change` or `--auto-clip-interval N`. The cooldown prevents duplicate clips when multiple automatic triggers fire close together.
