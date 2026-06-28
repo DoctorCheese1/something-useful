@@ -26,6 +26,9 @@ class ObsAutoClipConfig:
     enabled_for: ClipMode = ClipMode.BOTH
     poll_interval_seconds: float = 2.0
     rename_saved_clips: bool = True
+    auto_clip_on_scene_change: bool = False
+    auto_clip_interval_seconds: int | None = None
+    auto_clip_cooldown_seconds: float = 10.0
 
     def validate(self) -> None:
         if not self.host:
@@ -38,6 +41,10 @@ class ObsAutoClipConfig:
             raise ValueError("poll interval must be greater than zero")
         if not self.clip_naming_format:
             raise ValueError("clip naming format is required")
+        if self.auto_clip_interval_seconds is not None and self.auto_clip_interval_seconds <= 0:
+            raise ValueError("auto clip interval must be greater than zero")
+        if self.auto_clip_cooldown_seconds < 0:
+            raise ValueError("auto clip cooldown must not be negative")
 
     def ensure_output_folder(self) -> None:
         self.output_folder.mkdir(parents=True, exist_ok=True)

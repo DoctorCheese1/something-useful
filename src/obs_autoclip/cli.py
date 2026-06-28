@@ -19,6 +19,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--enabled-for", choices=[mode.value for mode in ClipMode], default=ClipMode.BOTH.value)
     parser.add_argument("--poll-interval", type=float, default=2.0)
     parser.add_argument("--no-rename", action="store_true", help="leave OBS-generated replay filenames unchanged")
+    parser.add_argument("--auto-clip-on-scene-change", action="store_true", help="save a replay whenever the active OBS scene changes")
+    parser.add_argument("--auto-clip-interval", type=int, help="save replays automatically every N seconds while clipping is active")
+    parser.add_argument("--auto-clip-cooldown", type=float, default=10.0, help="minimum seconds between automatic clips")
     subcommands = parser.add_subparsers(dest="command")
     subcommands.add_parser("watch", help="keep Replay Buffer synced with stream/recording state")
     subcommands.add_parser("clip", help="save the current Replay Buffer immediately")
@@ -36,6 +39,9 @@ def config_from_args(args: argparse.Namespace) -> ObsAutoClipConfig:
         enabled_for=ClipMode(args.enabled_for),
         poll_interval_seconds=args.poll_interval,
         rename_saved_clips=not args.no_rename,
+        auto_clip_on_scene_change=args.auto_clip_on_scene_change,
+        auto_clip_interval_seconds=args.auto_clip_interval,
+        auto_clip_cooldown_seconds=args.auto_clip_cooldown,
     )
 
 

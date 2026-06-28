@@ -14,6 +14,8 @@ class ObsAutoClipManager:
     def __init__(self, config: ObsAutoClipConfig, client: ObsClientProtocol | None = None) -> None:
         self.config = config
         self.client = client or ObsWebSocketClient(config.host, config.port, config.password)
+        self._last_scene_name: str | None = None
+        self._last_clip_time = 0.0
 
     def connect(self) -> None:
         self.config.validate()
@@ -33,7 +35,8 @@ class ObsAutoClipManager:
         return should_run
 
     def save_clip(self) -> Path | None:
-        before = time.time()
+        self._last_clip_time = time.time()
+        before = self._last_clip_time
         scene = self.client.get_current_scene_name()
         self.client.save_replay_buffer()
         if not self.config.rename_saved_clips:
@@ -56,11 +59,39 @@ class ObsAutoClipManager:
         saved.rename(target)
         return target
 
+    def maybe_auto_clip(self, replay_should_run: bool) -> Path | None:
+        if not replay_should_run:
+            return None
+
+        now = time.time()
+        if now - self._last_clip_time < self.config.auto_clip_cooldown_seconds:
+            return None
+
+        if self.config.auto_clip_interval_seconds is not None:
+            if self._last_clip_time == 0.0:
+                self._last_clip_time = now
+            elif now - self._last_clip_time >= self.config.auto_clip_interval_seconds:
+                return self.save_clip()
+
+        if self.config.auto_clip_on_scene_change:
+            scene = self.client.get_current_scene_name()
+            if self._last_scene_name is None:
+                self._last_scene_name = scene
+            elif scene != self._last_scene_name:
+                self._last_scene_name = scene
+                return self.save_clip()
+
+        return None
+
+    def tick(self) -> Path | None:
+        replay_should_run = self.sync_replay_buffer()
+        return self.maybe_auto_clip(replay_should_run)
+
     def run_forever(self) -> None:
         self.connect()
         try:
             while True:
-                self.sync_replay_buffer()
+                self.tick()
                 time.sleep(self.config.poll_interval_seconds)
         finally:
             self.disconnect()

@@ -27,3 +27,10 @@ def test_output_folder_created(tmp_path: Path) -> None:
     config.ensure_output_folder()
 
     assert folder.is_dir()
+
+
+def test_invalid_auto_clip_interval_rejected() -> None:
+    config = ObsAutoClipConfig(auto_clip_interval_seconds=0)
+
+    with pytest.raises(ValueError, match="auto clip interval"):
+        config.validate()
