@@ -17,6 +17,11 @@ set "AUTO_CLIP_COOLDOWN=10"
 
 if not exist "%OUTPUT_FOLDER%" mkdir "%OUTPUT_FOLDER%"
 
+echo Starting obs-autoclip...
+echo Leave this window open while streaming or recording.
+echo Clips folder: "%OUTPUT_FOLDER%"
+echo.
+
 set "PYTHONPATH=%SCRIPT_DIR%src;%PYTHONPATH%"
 
 python -c "import obsws_python" >nul 2>nul

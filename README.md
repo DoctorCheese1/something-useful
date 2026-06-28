@@ -43,7 +43,7 @@ The naming template supports `{date}`, `{time}`, `{timestamp}`, and `{scene}`. D
 
 ### Windows `.bat` launcher
 
-On Windows, double-click `start-obs-autoclip.bat` from the repository folder to start the watcher with the default no-password OBS WebSocket setup. Edit the variables at the top of the batch file if you need a different port, clip folder, clip length, password, or auto-clip interval.
+On Windows, double-click `start-obs-autoclip.bat` from the repository folder to start the watcher with the default no-password OBS WebSocket setup. Keep the Command Prompt window open while you stream or record; if it appears idle after the startup messages, that means the watcher is running and waiting for OBS activity. Edit the variables at the top of the batch file if you need a different port, clip folder, clip length, password, or auto-clip interval.
 
 If dependency installation fails on Windows, install the OBS WebSocket dependency directly:
 

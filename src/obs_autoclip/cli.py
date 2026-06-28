@@ -73,6 +73,14 @@ def main(argv: list[str] | None = None) -> int:
                 manager.disconnect()
             return 0
 
+        print(
+            "obs-autoclip is running. Leave this window open while streaming/recording. "
+            "Press Ctrl+C to stop."
+        )
+        print(
+            f"Watching OBS at ws://{args.host}:{args.port}; saving clips to "
+            f"{args.output_folder}"
+        )
         manager.run_forever()
         return 0
     except (ObsDependencyError, ObsConnectionError, ReplayBufferUnavailableError) as exc:
